@@ -14,6 +14,10 @@ import pandas as pd
 import sys
 import threading
 from tkinter import filedialog
+import serial
+
+# Arduino_Serial = serial.Serial("COM5",9600)
+# s = Arduino_Serial.readline()
 
 data = 'xx'
 data1=''
@@ -123,8 +127,6 @@ nameNHD.place(x=20,y=190)
 
 nameLop = ttk.Label(frame2,text="Lớp: TĐH1 - K61", font=("Arial", 15))
 nameLop.place(x=20,y=260)
-
-
 
 ##################################TrangTri############################################################################################
 
@@ -319,6 +321,43 @@ def reset_counter_lastData():
     else:
         btThemData_Tong.config(text='Thêm dữ liệu tổng kho')
 
+def ThaoTac():
+    nameTable.config(text="Bảng thao tác")
+    table.delete(*table.get_children())
+    colum_ThaoTac = ("0","1", "2","3","4")
+    table.config(columns=colum_ThaoTac)
+    table.heading("#0", text="STT")
+    table.heading("0", text="Name")
+    table.heading("1", text="Trạng thái")
+    table.heading("2", text="Thời gian")
+    table.heading("3", text="Ca làm")
+    table.heading("4", text="Người làm")
+    table.column("#0", width=150)
+    # table.column("6", width=150)
+    table.pack(fill="both", padx=0, pady=350)
+
+    counter =1
+    sql_query = f"SELECT * FROM ThaoTac"
+    try:
+        cursor = conn.cursor()
+        cursor.execute(sql_query)
+        # Lấy tất cả các dòng từ kết quả truy vấn
+        rows = cursor.fetchall()
+    except Exception as e:
+        print(f"Lỗi lấy dữ liệu: {e}")
+        traceback.print_exc()
+    else:
+        if rows:
+        # Chuyển đổi dữ liệu thành list các dòng và gán vào biến
+            data_select = [list(row) for row in rows]
+            print('Truy vấn dữ liệu thành công')
+    
+    # print(data_select[0][0])
+    for i in range(len(data_select)):
+        table.insert("", "end", text=str(counter), values=data_select[i])
+        counter+=1
+        if counter == len(data_select) +1 :
+            counter=1
 
 def nhapKho():
     setup_table("Bảng nhập kho", "Thời gian nhập")
@@ -382,7 +421,13 @@ r2 = ttk.Radiobutton(
         variable=nameTableData,
         command=tongKho
     ).place(x=20,y=650)
-
+r3 = ttk.Radiobutton(
+        frame2,
+        text="Thao tác",
+        value="KEP_Sever_DB",
+        variable=nameTableData,
+        command=ThaoTac
+    ).place(x=150,y=650) 
 
 
 ##############################################################################################################################
@@ -432,6 +477,14 @@ btXuatExcel = tk.Button(
     text='Xuất file excel',
     command=on_btXuatExcel                   
     ).place(x=10,y=700)
+def HienThiThongBaoHetHang():
+    messagebox.showinfo("Thông báo",f"Không đủ hàng trong kho còn lại: 0")
+def thongBao_HetHang():
+    loi = threading.Thread(target=HienThiThongBaoHetHang)
+    loi.start()
+
+
+
 def delete_data():
     # Lấy id của hàng được chọn
     selected_item = table.focus()
@@ -472,7 +525,59 @@ delete_button.place(x=280,y=700)
 
 update_button = tk.Button(frame2, text='Sửa dữ liệu', command="")
 update_button.place(x=380,y=700)
+# def truyenThongArd(data_frame):
+#     if data_frame[0] == '001':
+#         # myOutput = 'Trong Kho'
+#         # myColor = (0, 255, 0)
+#         Arduino_Serial.write('1'.encode())
+#         # checkPath.set(TRUE)
 
+#     elif data_frame[0] == '002':
+#         # myOutput = 'Trong Kho'
+#         # myColor = (0, 255, 0)
+#         Arduino_Serial.write('2'.encode())
+#         # checkPath.set(TRUE)
+
+#     elif data_frame[0] == '003':
+#         # myOutput = 'Trong Kho'
+#         # myColor = (0, 255, 0)
+#         Arduino_Serial.write('3'.encode())
+#         # checkPath.set(TRUE)
+
+#     elif data_frame[0] == '004':
+#         # myOutput = 'Trong Kho'
+#         # myColor = (0, 255, 0)
+#         Arduino_Serial.write('4'.encode())
+#         # checkPath.set(TRUE)
+
+#     elif data_frame[0] == '005':
+#         # myOutput = 'Trong Kho'
+#         # myColor = (0, 255, 0)
+#         Arduino_Serial.write('5'.encode())
+#         # checkPath.set(TRUE)
+
+#     elif data_frame[0] == '006':
+#         # myOutput = 'Trong Kho'
+#         # myColor = (0, 255, 0)
+#         Arduino_Serial.write('6'.encode())
+#         # checkPath.set(TRUE)
+
+#     elif data_frame[0] == '007':
+#         # myOutput = 'Trong Kho'
+#         # myColor = (0, 255, 0)
+#         Arduino_Serial.write('7'. encode())
+#         # checkPath.set(TRUE)
+
+#     elif data_frame[0] == '008':
+#         # myOutput = 'Trong Kho'
+#         # myColor = (0, 255, 0)
+#         Arduino_Serial.write('8'.encode())
+#         # checkPath.set(TRUE)
+
+#     else:
+#         myOutput = 'Khong trong kho'
+#         # myColor = (0, 0, 255)
+#         # checkPath.set(FALSE)
 def capturedVideo():
     global handle_frame_img
     global data, last_data
@@ -526,12 +631,13 @@ def capturedVideo():
                 if last_data != data_frame[0]:
                     #Biến lưu giá trị truy vấn từ CSDL
                     data_temp = selectData_dataBase(data_frame[0]) # là một tuple
+                    data_ktra = data_temp
                     data_temp = data_temp[:5] + (1,) + data_temp[5 + 1:] 
                     name_table = str(nameTableData.get()) #Biến lấy giá trị tên của bảng cần chèn
-                    if name_table == "Xuat":
-                        # df_soluonxuat = pd.read_sql('SELECT * FROM Bang_Xuat_Kho',conn)
-                        pass
+                    if(nameTableData.get() == "Xuat" and (data_ktra[5] == 0 ) ):
+                        thongBao_HetHang()
                     elif name_table != "Tong":
+                        # truyenThongArd(data_frame[0])  - sử dụng khi có arduino
                         insertData(data_temp,name_table)
                         add_dataBase_to_TreeView(data_temp,name_table)
                     last_data = data_frame[0]    
@@ -560,9 +666,6 @@ def capturedVideo():
             handle_frame_img.place(x=0,y=400)
             handle_frame_img.after(20,capturedVideo)
 
-    
-    
-    
 capturedVideo()
 root.mainloop()
 camera.release()
