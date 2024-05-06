@@ -16,8 +16,8 @@ import threading
 from tkinter import filedialog
 import serial
 
-# Arduino_Serial = serial.Serial("COM5",9600)
-# s = Arduino_Serial.readline()
+Arduino_Serial = serial.Serial("COM6",9600)
+s = Arduino_Serial.readline()
 
 data = 'xx'
 data1=''
@@ -282,8 +282,6 @@ def add_data_tree_f2():
         # Thêm dữ liệu vào Treeview
         # table.insert('', 'end', values=new_values)
         new_values=tuple(new_values)
-        print(f'Dữ liệu thêm vào {new_values}')
-        print(type(new_values))
         try:
             cursor = conn.cursor()
             cursor.execute(sql_query,new_values)
@@ -451,11 +449,13 @@ def add_dataBase_to_TreeView(data,tablename):
     # Cuộn xuống dòng cuối cùng
     table.see(last_item)
     dem = dem + 1
-
+time_start_total = ()
+time_end_total = ()
 def luaChonThoiGianXuatEx():
     addWin = tk.Toplevel()
     addWin.title("Lựa chọn thời gian xuất dữ liệu")
     addWin.geometry('300x120+600+550')
+    global time_end_total,time_start_total
     nam_lb = tk.Label(addWin,text="Năm").grid(row=0,column=2)
     thang_lb = tk.Label(addWin,text="Tháng").grid(row=0,column=3)
     ngay_lb = tk.Label(addWin,text="Ngày").grid(row=0,column=4)
@@ -463,31 +463,61 @@ def luaChonThoiGianXuatEx():
     phut_lb = tk.Label(addWin,text="Phút").grid(row=0,column=6)
 
     time_start_lb = tk.Label(addWin,text="Từ: ").grid(row=1,column=1)
-    time_start_nam = tk.Entry(addWin,width=5).grid(row=1,column=2)
-    time_start_thang = tk.Entry(addWin,width=5).grid(row=1,column=3)
-    time_start_ngay = tk.Entry(addWin,width=5).grid(row=1,column=4)
-    time_start_gio = tk.Entry(addWin,width=5).grid(row=1,column=5)
-    time_start_phut = tk.Entry(addWin,width=5).grid(row=1,column=6)
+    time_start_nam = tk.Entry(addWin,width=5)
+    time_start_nam.grid(row=1,column=2)
+    time_start_thang = tk.Entry(addWin,width=5)
+    time_start_thang.grid(row=1,column=3)
+    time_start_ngay = tk.Entry(addWin,width=5)
+    time_start_ngay.grid(row=1,column=4)
+    time_start_gio = tk.Entry(addWin,width=5)
+    time_start_gio.grid(row=1,column=5)
+    time_start_phut = tk.Entry(addWin,width=5)
+    time_start_phut.grid(row=1,column=6)
+
 
     time_end_lb = tk.Label(addWin,text="Đến: ").grid(row=2,column=1)
-    time_end_nam = tk.Entry(addWin,width=5).grid(row=2,column=2)
-    time_end_thang = tk.Entry(addWin,width=5).grid(row=2,column=3)
-    time_end_ngay = tk.Entry(addWin,width=5).grid(row=2,column=4)
-    time_end_gio = tk.Entry(addWin,width=5).grid(row=2,column=5)
-    time_end_phut = tk.Entry(addWin,width=5).grid(row=2,column=6)
+    time_end_nam = tk.Entry(addWin,width=5)
+    time_end_nam.grid(row=2,column=2) 
+    time_end_thang = tk.Entry(addWin,width=5)
+    time_end_thang.grid(row=2,column=3)
+    time_end_ngay = tk.Entry(addWin,width=5)
+    time_end_ngay.grid(row=2,column=4)
+    time_end_gio = tk.Entry(addWin,width=5)
+    time_end_gio.grid(row=2,column=5)
+    time_end_phut = tk.Entry(addWin,width=5)
+    time_end_phut.grid(row=2,column=6)
     def save_data():
+        # time_start_total = ()
+        # time_end_total = ()
+        global time_end_total,time_start_total
+        time_start_total = (time_start_nam.get(),time_start_thang.get(),time_start_ngay.get(),time_start_gio.get(),time_start_phut.get())
+        time_end_total   = (time_end_nam.get(),time_end_thang.get(),time_end_ngay.get(),time_end_gio.get(),time_end_phut.get())
         addWin.destroy()
+        print('helloxxxx')
+        print(time_start_total)
+        print(time_end_total)
+
         ExportElxs()
+    
     tk.Button(addWin, text='Thêm', command=save_data).place(x=50,y=80)
+    
+
 def ExportElxs():
     global conn
     global nameTableData
     name_table = str(nameTableData.get())
+    if name_table == "Xuat":
+        name_table = "Bang_Xuat_Kho"
+    elif name_table == "Nhap":
+        name_table = "Bang_Nhap_Kho"
+    elif name_table == "Tong":
+        name_table = "Bang_Tong_Kho"
+    
     print(name_table)
     if(name_table == 'TongKho1'):
         name_table = 'Tong'
     luaChonThoiGianXuatEx()
-    kq = pd.read_sql(f'SELECT * FROM Bang_{name_table}_Kho',conn)
+    kq = pd.read_sql(f'SELECT * FROM {name_table}',conn)
 
     df = pd.DataFrame(kq)
     file_path = filedialog.asksaveasfilename(defaultextension='.xlsx', filetypes=[("Excel files", "*.xlsx")])
@@ -553,59 +583,60 @@ delete_button.place(x=280,y=700)
 
 update_button = tk.Button(frame2, text='Sửa dữ liệu', command="")
 update_button.place(x=380,y=700)
-# def truyenThongArd(data_frame):
-#     if data_frame[0] == '001':
-#         # myOutput = 'Trong Kho'
-#         # myColor = (0, 255, 0)
-#         Arduino_Serial.write('1'.encode())
-#         # checkPath.set(TRUE)
+def truyenThongArd(data_frame):
+    # checkPath = tk.BooleanVar()
+    print(f'truyenthong{data_frame}')
+    if data_frame[0] == '001':
+        # myOutput = 'Trong Kho'
+        # myColor = (0, 255, 0)
+        Arduino_Serial.write('1'.encode())
+        # checkPath.set(TRUE)
 
-#     elif data_frame[0] == '002':
-#         # myOutput = 'Trong Kho'
-#         # myColor = (0, 255, 0)
-#         Arduino_Serial.write('2'.encode())
-#         # checkPath.set(TRUE)
+    elif data_frame == '002':
+        # myOutput = 'Trong Kho'
+        # myColor = (0, 255, 0)
+        Arduino_Serial.write('2'.encode())
+        # checkPath.set(TRU
+    elif data_frame == '003':
+        # myOutput = 'Trong Kho'
+        # myColor = (0, 255, 0)
+        Arduino_Serial.write('3'.encode())
+        # checkPath.set(TRUE)
 
-#     elif data_frame[0] == '003':
-#         # myOutput = 'Trong Kho'
-#         # myColor = (0, 255, 0)
-#         Arduino_Serial.write('3'.encode())
-#         # checkPath.set(TRUE)
+    elif data_frame == '004':
+        # myOutput = 'Trong Kho'
+        # myColor = (0, 255, 0)
+        Arduino_Serial.write('4'.encode())
+        # checkPath.set(TRUE)
 
-#     elif data_frame[0] == '004':
-#         # myOutput = 'Trong Kho'
-#         # myColor = (0, 255, 0)
-#         Arduino_Serial.write('4'.encode())
-#         # checkPath.set(TRUE)
+    elif data_frame == '005':
+        # myOutput = 'Trong Kho'
+        # myColor = (0, 255, 0)
+        Arduino_Serial.write('5'.encode())
+        # checkPath.set(TRUE)
 
-#     elif data_frame[0] == '005':
-#         # myOutput = 'Trong Kho'
-#         # myColor = (0, 255, 0)
-#         Arduino_Serial.write('5'.encode())
-#         # checkPath.set(TRUE)
+    elif data_frame == '006':
+        # myOutput = 'Trong Kho'
+        # myColor = (0, 255, 0)
+        Arduino_Serial.write('6'.encode())
+        # checkPath.set(TRUE)
 
-#     elif data_frame[0] == '006':
-#         # myOutput = 'Trong Kho'
-#         # myColor = (0, 255, 0)
-#         Arduino_Serial.write('6'.encode())
-#         # checkPath.set(TRUE)
+    elif data_frame == '007':
+        # myOutput = 'Trong Kho'
+        # myColor = (0, 255, 0)
+        Arduino_Serial.write('7'. encode())
+        # checkPath.set(TRUE)
 
-#     elif data_frame[0] == '007':
-#         # myOutput = 'Trong Kho'
-#         # myColor = (0, 255, 0)
-#         Arduino_Serial.write('7'. encode())
-#         # checkPath.set(TRUE)
+    elif data_frame == '008':
+        # myOutput = 'Trong Kho'
+        # myColor = (0, 255, 0)
+        Arduino_Serial.write('8'.encode())
+        # checkPath.set(TRUE)
 
-#     elif data_frame[0] == '008':
-#         # myOutput = 'Trong Kho'
-#         # myColor = (0, 255, 0)
-#         Arduino_Serial.write('8'.encode())
-#         # checkPath.set(TRUE)
-
-#     else:
-#         myOutput = 'Khong trong kho'
-#         # myColor = (0, 0, 255)
-#         # checkPath.set(FALSE)
+    else:
+        myOutput = 'Khong trong kho'
+        # myColor = (0, 0, 255)
+        # checkPath.set(FALSE)
 def capturedVideo():
     global handle_frame_img
     global data, last_data
@@ -647,15 +678,17 @@ def capturedVideo():
             # print(point_C)
             # print(point_D)
             #Vị trí chữ dựa trên chiều của mã QR
-            point_text = (int(point_C[0]-((dimensionofQrCode.width)/1)),int(point_C[1]-30))
-            # print(point_text)
+            point_text1 = (int(point_C[0]-((dimensionofQrCode.width)/1)),int(point_C[1]-80))
+            point_text2 = (int(point_C[0]-((dimensionofQrCode.width)/1)),int(point_C[1]-30))
+            # print(point_text1)
             #Lấy dữ liệu, chuyển dữ liệu gốc về dạng UTF-8
             data = DecodedObject.data.decode('utf-8')
             data_frame = list(data.split(","))
             data_frame = list(data_frame)
             df = pd.read_sql('SELECT * FROM Bang_Tong_Kho',conn)
             if data_frame[0] in df['MaHang'].values:
-                frame_text = cv.putText(frame_drew,text=f'Ma:{data_frame[0]},In Stock',fontFace=cv.FONT_HERSHEY_PLAIN,fontScale=3,color=(0,255,0),org=point_text,thickness=2)
+                frame_text1 = cv.putText(frame_drew,text=f'Ma:{data_frame[0]}',fontFace=cv.FONT_HERSHEY_PLAIN,fontScale=3,color=(0,255,0),org=point_text1,thickness=2)
+                frame_text2 = cv.putText(frame_drew,text='In Stock',fontFace=cv.FONT_HERSHEY_PLAIN,fontScale=3,color=(0,255,0),org=point_text2,thickness=2)
                 if last_data != data_frame[0]:
                     #Biến lưu giá trị truy vấn từ CSDL
                     data_temp = selectData_dataBase(data_frame[0]) # là một tuple
@@ -664,15 +697,17 @@ def capturedVideo():
                     name_table = str(nameTableData.get()) #Biến lấy giá trị tên của bảng cần chèn
                     if(nameTableData.get() == "Xuat" and (data_ktra[5] == 0 ) ):
                         thongBao_HetHang()
-                    elif name_table != "Tong":
-                        # truyenThongArd(data_frame[0])  - sử dụng khi có arduino
+                    elif name_table in ("Nhap","Xuat"):
+                        truyenThongArd(data_frame[0])  #- sử dụng khi có arduino
                         insertData(data_temp,name_table)
                         add_dataBase_to_TreeView(data_temp,name_table)
                     last_data = data_frame[0]    
 
             else:
-                frame_text = cv.putText(frame_drew,text=f'Ma:{data_frame[0]},Out of Stock',fontFace=cv.FONT_HERSHEY_PLAIN,fontScale=3,color=(255,0,0),org=point_text,thickness=2)
-            image = Image.fromarray(frame_text)
+                frame_text1 = cv.putText(frame_drew,text=f'Ma:{data_frame[0]}',fontFace=cv.FONT_HERSHEY_PLAIN,fontScale=3,color=(255,0,0),org=point_text1,thickness=2)
+                frame_text2 = cv.putText(frame_drew,text='Out of Stock',fontFace=cv.FONT_HERSHEY_PLAIN,fontScale=3,color=(255,0,0),org=point_text2,thickness=2)
+
+            image = Image.fromarray(frame_text1)
             image = image.resize((600,400))
             destImage = ImageTk.PhotoImage(image=image)
             handle_frame_img.configure(
@@ -693,7 +728,6 @@ def capturedVideo():
                 #Loop after 20ms
             handle_frame_img.place(x=0,y=400)
             handle_frame_img.after(20,capturedVideo)
-
 capturedVideo()
 root.mainloop()
 camera.release()
