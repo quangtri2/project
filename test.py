@@ -16,9 +16,14 @@ import threading
 from tkinter import filedialog
 import serial
 
-Arduino_Serial = serial.Serial("COM6",9600)
-s = Arduino_Serial.readline()
-
+try: 
+    Arduino_Serial = serial.Serial("COM6",9600)
+    s = Arduino_Serial.readline()
+except:
+    print("Kiểm tra lại cách kết nối nhaa")
+    exit() #Thoát khỏi chương trình
+else:
+    print("Kết nối Arduino thành công!")
 data = 'xx'
 data1=''
 last_data = ''
@@ -586,7 +591,7 @@ update_button.place(x=380,y=700)
 def truyenThongArd(data_frame):
     # checkPath = tk.BooleanVar()
     print(f'truyenthong{data_frame}')
-    if data_frame[0] == '001':
+    if data_frame == '001':
         # myOutput = 'Trong Kho'
         # myColor = (0, 255, 0)
         Arduino_Serial.write('1'.encode())
@@ -625,7 +630,7 @@ def truyenThongArd(data_frame):
         # myOutput = 'Trong Kho'
         # myColor = (0, 255, 0)
         Arduino_Serial.write('7'. encode())
-        # checkPath.set(TRUE)
+        # checkPath.set(TRUE)7
 
     elif data_frame == '008':
         # myOutput = 'Trong Kho'
