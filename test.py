@@ -183,7 +183,7 @@ def setup_table(name, time_label = None):
 def insertData(data,table):
     global conn
     global counter
-    current_time = datetime.datetime.now().strftime("%H:%M:%S %d-%m-%Y ")
+    current_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     sql_query = ""
     time = str(current_time)
     data=tuple(data)
@@ -206,7 +206,7 @@ def add_data_tree_f2():
     add_win.title("Thêm dữ liệu")
     add_win.geometry('300x200+600+550')
     global conn
-    current_time = datetime.datetime.now().strftime("%H:%M:%S %d-%m-%Y ")
+    current_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     time = str(current_time)
     # data=tuple(data)
     # data = data + (time,)
@@ -436,7 +436,7 @@ def add_dataBase_to_TreeView(data,tablename):
     # global counter
     global dem
     # global nameTableData
-    current_time = datetime.datetime.now().strftime("%H:%M:%S %d-%m-%Y ")
+    current_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
     time = str(current_time)
     # data=list(data.split(","))
@@ -451,6 +451,34 @@ def add_dataBase_to_TreeView(data,tablename):
     # Cuộn xuống dòng cuối cùng
     table.see(last_item)
     dem = dem + 1
+
+def luaChonThoiGianXuatEx():
+    addWin = tk.Toplevel()
+    addWin.title("Lựa chọn thời gian xuất dữ liệu")
+    addWin.geometry('300x120+600+550')
+    nam_lb = tk.Label(addWin,text="Năm").grid(row=0,column=2)
+    thang_lb = tk.Label(addWin,text="Tháng").grid(row=0,column=3)
+    ngay_lb = tk.Label(addWin,text="Ngày").grid(row=0,column=4)
+    gio_lb = tk.Label(addWin,text="Giờ").grid(row=0,column=5)
+    phut_lb = tk.Label(addWin,text="Phút").grid(row=0,column=6)
+
+    time_start_lb = tk.Label(addWin,text="Từ: ").grid(row=1,column=1)
+    time_start_nam = tk.Entry(addWin,width=5).grid(row=1,column=2)
+    time_start_thang = tk.Entry(addWin,width=5).grid(row=1,column=3)
+    time_start_ngay = tk.Entry(addWin,width=5).grid(row=1,column=4)
+    time_start_gio = tk.Entry(addWin,width=5).grid(row=1,column=5)
+    time_start_phut = tk.Entry(addWin,width=5).grid(row=1,column=6)
+
+    time_end_lb = tk.Label(addWin,text="Đến: ").grid(row=2,column=1)
+    time_end_nam = tk.Entry(addWin,width=5).grid(row=2,column=2)
+    time_end_thang = tk.Entry(addWin,width=5).grid(row=2,column=3)
+    time_end_ngay = tk.Entry(addWin,width=5).grid(row=2,column=4)
+    time_end_gio = tk.Entry(addWin,width=5).grid(row=2,column=5)
+    time_end_phut = tk.Entry(addWin,width=5).grid(row=2,column=6)
+    def save_data():
+        addWin.destroy()
+        ExportElxs()
+    tk.Button(addWin, text='Thêm', command=save_data).place(x=50,y=80)
 def ExportElxs():
     global conn
     global nameTableData
@@ -458,7 +486,7 @@ def ExportElxs():
     print(name_table)
     if(name_table == 'TongKho1'):
         name_table = 'Tong'
-        
+    luaChonThoiGianXuatEx()
     kq = pd.read_sql(f'SELECT * FROM Bang_{name_table}_Kho',conn)
 
     df = pd.DataFrame(kq)
@@ -469,7 +497,7 @@ def ExportElxs():
         df.to_excel(file_path,index=False)
 
 def on_btXuatExcel():
-    excel = threading.Thread(target=ExportElxs)
+    excel = threading.Thread(target=luaChonThoiGianXuatEx)
     excel.start()
 
 btXuatExcel = tk.Button(
