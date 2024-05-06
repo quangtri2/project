@@ -16,18 +16,16 @@ import threading
 from tkinter import filedialog
 import serial
 
-try: 
-    Arduino_Serial = serial.Serial("COM6",9600)
-    s = Arduino_Serial.readline()
-except:
-    print("Kiểm tra lại cách kết nối nhaa")
-    exit() #Thoát khỏi chương trình
-else:
-    print("Kết nối Arduino thành công!")
+
+# Arduino_Serial = serial.Serial("COM6",9600)
+# s = Arduino_Serial.readline()
+  
+
 data = 'xx'
 data1=''
 last_data = ''
 conn = ""
+ktraArd = 0
 ktra = 0
 ktratable = ''
 DRIVER_NAME = 'SQL SERVER'
@@ -590,58 +588,45 @@ update_button = tk.Button(frame2, text='Sửa dữ liệu', command="")
 update_button.place(x=380,y=700)
 def truyenThongArd(data_frame):
     # checkPath = tk.BooleanVar()
-    print(f'truyenthong{data_frame}')
-    if data_frame == '001':
-        # myOutput = 'Trong Kho'
-        # myColor = (0, 255, 0)
-        Arduino_Serial.write('1'.encode())
-        # checkPath.set(TRUE)
+    # print(f'truyenthong{data_frame}')
+    # if data_frame == '001':
+    #     Arduino_Serial.write('1'.encode())
+    # elif data_frame == '002':
+    #     Arduino_Serial.write('2'.encode())
+    # elif data_frame == '003':
+    #     Arduino_Serial.write('3'.encode())
+    # elif data_frame == '004':
+    #     Arduino_Serial.write('4'.encode())
+    # elif data_frame == '005':
+    #     Arduino_Serial.write('5'.encode())
+    # elif data_frame == '006':
+    #     Arduino_Serial.write('6'.encode())
+    # elif data_frame == '007':
+    #     Arduino_Serial.write('7'. encode())
+    # elif data_frame == '008':
+    #     Arduino_Serial.write('8'.encode())
+    # else:
+    #     myOutput = 'Khong trong kho'
+ # Tạo từ điển ánh xạ giữa data_frame và chuỗi cần gửi
+    data_mapping = {
+        '001': '1',
+        '002': '2',
+        '003': '3',
+        '004': '4',
+        '005': '5',
+        '006': '6',
+        '007': '7',
+        '008': '8'
+    }
 
-    elif data_frame == '002':
-        # myOutput = 'Trong Kho'
-        # myColor = (0, 255, 0)
-        Arduino_Serial.write('2'.encode())
-        # checkPath.set(TRU
-    elif data_frame == '003':
-        # myOutput = 'Trong Kho'
-        # myColor = (0, 255, 0)
-        Arduino_Serial.write('3'.encode())
-        # checkPath.set(TRUE)
-
-    elif data_frame == '004':
-        # myOutput = 'Trong Kho'
-        # myColor = (0, 255, 0)
-        Arduino_Serial.write('4'.encode())
-        # checkPath.set(TRUE)
-
-    elif data_frame == '005':
-        # myOutput = 'Trong Kho'
-        # myColor = (0, 255, 0)
-        Arduino_Serial.write('5'.encode())
-        # checkPath.set(TRUE)
-
-    elif data_frame == '006':
-        # myOutput = 'Trong Kho'
-        # myColor = (0, 255, 0)
-        Arduino_Serial.write('6'.encode())
-        # checkPath.set(TRUE)
-
-    elif data_frame == '007':
-        # myOutput = 'Trong Kho'
-        # myColor = (0, 255, 0)
-        Arduino_Serial.write('7'. encode())
-        # checkPath.set(TRUE)7
-
-    elif data_frame == '008':
-        # myOutput = 'Trong Kho'
-        # myColor = (0, 255, 0)
-        Arduino_Serial.write('8'.encode())
-        # checkPath.set(TRUE)
-
+    # Kiểm tra xem data_frame có trong từ điển không
+    if data_frame in data_mapping:
+        # Gửi chuỗi tương ứng với data_frame
+        Arduino_Serial.write(data_mapping[data_frame].encode())
     else:
         myOutput = 'Khong trong kho'
-        # myColor = (0, 0, 255)
-        # checkPath.set(FALSE)
+
+
 def capturedVideo():
     global handle_frame_img
     global data, last_data
@@ -703,7 +688,7 @@ def capturedVideo():
                     if(nameTableData.get() == "Xuat" and (data_ktra[5] == 0 ) ):
                         thongBao_HetHang()
                     elif name_table in ("Nhap","Xuat"):
-                        truyenThongArd(data_frame[0])  #- sử dụng khi có arduino
+                        # truyenThongArd(data_frame[0])  #- sử dụng khi có arduino
                         insertData(data_temp,name_table)
                         add_dataBase_to_TreeView(data_temp,name_table)
                     last_data = data_frame[0]    
