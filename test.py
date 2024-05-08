@@ -30,7 +30,7 @@ ktra = 0
 ktratable = ''
 DRIVER_NAME = 'SQL SERVER'
 SERVER_NAME = 'DESKTOP-9Q5LPOB\SQLEXPRESS'
-DATABASE_NAME = 'QLLK_NCKH'
+DATABASE_NAME = 'KEP_Sv_DT'
 directionOfQrCode = ''
 connection_string = f"""
     DRIVER={DRIVER_NAME};
@@ -110,7 +110,7 @@ def selectData_dataBase(data):
         if row is not None:
         # Chuyển đổi dữ liệu thành list và gán vào biến
             data_select = [element for element in row]
-            print('Truy vấn dữ liệu thành công')
+            # print('Truy vấn dữ liệu thành công')
     return tuple(data_select)
 
 
@@ -125,7 +125,7 @@ nameDeTai.place(x=450,y=70)
 nameDeTai = ttk.Label(frame2,text="Nghiên cứu xây dựng hệ Smart Factory cho cụm nhận dạng phân loại sản phẩm và lưu kho của nhà máy cơ khí", font=("Arial", 15))
 nameDeTai.place(x=20,y=120)
 
-nameNHD = ttk.Label(frame2,text="Người hướng dẫn: Th.S PHẠM THỊ LÝ", font=("Arial", 15))
+nameNHD = ttk.Label(frame2,text="Người hướng dẫn: T.S PHẠM THỊ LÝ", font=("Arial", 15))
 nameNHD.place(x=20,y=190)
 
 nameLop = ttk.Label(frame2,text="Lớp: TĐH1 - K61", font=("Arial", 15))
@@ -325,20 +325,20 @@ def reset_counter_lastData():
 def ThaoTac():
     nameTable.config(text="Bảng thao tác")
     table.delete(*table.get_children())
-    colum_ThaoTac = ("0","1", "2","3","4")
+    colum_ThaoTac = ("0","1","2")
     table.config(columns=colum_ThaoTac)
     table.heading("#0", text="STT")
     table.heading("0", text="Name")
     table.heading("1", text="Trạng thái")
     table.heading("2", text="Thời gian")
-    table.heading("3", text="Ca làm")
-    table.heading("4", text="Người làm")
+    # table.heading("3", text="Ca làm")
+    # table.heading("4", text="Người làm")
     table.column("#0", width=150)
     # table.column("6", width=150)
     table.pack(fill="both", padx=0, pady=350)
 
     counter =1
-    sql_query = f"SELECT * FROM ThaoTac"
+    sql_query = f"SELECT _NAME,_VALUE,_TIMESTAMP FROM [dbo].[Bang_Thao_Tac]"
     try:
         cursor = conn.cursor()
         cursor.execute(sql_query)
@@ -351,14 +351,60 @@ def ThaoTac():
         if rows:
         # Chuyển đổi dữ liệu thành list các dòng và gán vào biến
             data_select = [list(row) for row in rows]
-            print('Truy vấn dữ liệu thành công')
-    
-    # print(data_select[0][0])
+            # print('Truy vấn dữ liệu thành công')
+    name_mapping = {
+    "Channel1.Device1.Tags.Tag1": " Vat A",
+    "Channel1.Device1.Tags.Tag2": " Vat B",
+    "Channel1.Device1.Tags.Tag3": " Vat C",
+    "Channel1.Device1.Tags.Tag4": " Vat D",
+    "Channel1.Device1.Tags.Tag5": "CB Reset A",
+    "Channel1.Device1.Tags.Tag6": "CB Reset B"        ,
+    "Channel1.Device1.Tags.Tag7": "CB Reset C"        ,
+    "Channel1.Device1.Tags.Tag8": "CB Reset D"        ,
+    # "Channel1.Device1.Tags.Tag9": "Vat A"        ,
+    # "Channel1.Device1.Tags.Tag10": "Vat B"        ,
+    # "Channel1.Device1.Tags.Tag11": "Vat C"        ,
+    # "Channel1.Device1.Tags.Tag12": "Vat D"        ,
+    # "Channel1.Device1.Tags.Tag13": "Start"        ,
+    "Channel1.Device1.Tags.Tag14": "CB Xilanh"        ,
+    "Channel1.Device1.Tags.Tag15": "CTHT DC1 N"        ,
+
+
+    }      
+    for row in data_select:
+    # Lấy giá trị của cột _NAME trong dòng hiện tại
+        name_value = row[0]
+        
+        # Thực hiện thay đổi tên
+        if name_value in name_mapping:
+        # Nếu có, thay đổi giá trị cũ thành giá trị mới từ từ điển
+            row[0] = name_mapping[name_value]
     for i in range(len(data_select)):
+        # print(data_select[i][0])
         table.insert("", "end", text=str(counter), values=data_select[i])
         counter+=1
-        if counter == len(data_select) +1 :
+        if counter == len(data_select) +1:
             counter=1
+
+    # Đặt biến kiểm tra trạng thái
+    should_continue = True
+
+    # Kiểm tra điều kiện
+    if nameTableData.get() == "Thao_Tac":
+        root.after(100, ThaoTac)
+    else:
+        # Gán biến kiểm tra trạng thái là False nếu điều kiện không được thỏa mãn
+        root.after_cancel()
+
+    # Dừng việc gọi root.after nếu biến kiểm tra trạng thái là False
+
+
+
+    last_item = table.get_children()[-1]
+    # table.selection_set(last_item)
+    # Cuộn xuống dòng cuối cùng
+    table.see(last_item)
+
 
 def nhapKho():
     setup_table("Bảng nhập kho", "Thời gian nhập")
@@ -383,7 +429,7 @@ def tongKho():
         if rows:
         # Chuyển đổi dữ liệu thành list các dòng và gán vào biến
             data_select = [list(row) for row in rows]
-            print('Truy vấn dữ liệu thành công')
+            # print('Truy vấn dữ liệu thành công')
     
     
     # print(data_select[0][0])
@@ -425,7 +471,7 @@ r2 = ttk.Radiobutton(
 r3 = ttk.Radiobutton(
         frame2,
         text="Thao tác",
-        value="KEP_Sever_DB",
+        value="Thao_Tac",
         variable=nameTableData,
         command=ThaoTac
     ).place(x=150,y=650) 
@@ -454,11 +500,22 @@ def add_dataBase_to_TreeView(data,tablename):
     dem = dem + 1
 time_start_total = ()
 time_end_total = ()
+addWin=""
+
+def KiemTraXuatEx():
+    if nameTableData.get() == "Tong":
+        sql_query = " SELECT * FROM Bang_Tong_Kho"
+        ExportElxs(sql_query)
+    else:
+        luaChonThoiGianXuatEx()
+
 def luaChonThoiGianXuatEx():
+    global addWin
     addWin = tk.Toplevel()
     addWin.title("Lựa chọn thời gian xuất dữ liệu")
     addWin.geometry('300x120+600+550')
     global time_end_total,time_start_total
+    global conn
     nam_lb = tk.Label(addWin,text="Năm").grid(row=0,column=2)
     thang_lb = tk.Label(addWin,text="Tháng").grid(row=0,column=3)
     ngay_lb = tk.Label(addWin,text="Ngày").grid(row=0,column=4)
@@ -489,48 +546,126 @@ def luaChonThoiGianXuatEx():
     time_end_gio.grid(row=2,column=5)
     time_end_phut = tk.Entry(addWin,width=5)
     time_end_phut.grid(row=2,column=6)
+    
+# Biến để lưu trạng thái của checkbutton
+    
+    ckb_xuattoanbo_var = tk.IntVar()
+    # lb_xuattoanbo = tk.Label(addWin,text="Xuất toàn bộ dữ liệu").place(x=100,y=65)
+    ckb_xuattoanbo = tk.Checkbutton(addWin,text="Xuất toàn bộ dữ liệu", variable=ckb_xuattoanbo_var)
+    ckb_xuattoanbo.place(x=100,y=65)   
+
+    
+   
+
+
+
     def save_data():
         # time_start_total = ()
         # time_end_total = ()
         global time_end_total,time_start_total
+        global nameTable
         time_start_total = (time_start_nam.get(),time_start_thang.get(),time_start_ngay.get(),time_start_gio.get(),time_start_phut.get())
         time_end_total   = (time_end_nam.get(),time_end_thang.get(),time_end_ngay.get(),time_end_gio.get(),time_end_phut.get())
-        addWin.destroy()
-        print('helloxxxx')
+        
         print(time_start_total)
         print(time_end_total)
 
-        ExportElxs()
+        time_toltal = (time_start_total,time_end_total)
+        # if time_toltal:
+        #     print(time_toltal)
+        #     print("khong rong")
+        name_table = str(nameTableData.get())
+        if name_table == "Xuat":
+            name_table = "Bang_Xuat_Kho"
+        elif name_table == "Nhap":
+            name_table = "Bang_Nhap_Kho"
+        elif name_table == "Tong":
+            name_table = "Bang_Tong_Kho"
+        elif name_table == "Thao_Tac":
+            name_table == "Bang_Thao_Tac"
+
+        if nameTableData.get() in ("Nhap","Xuat") and ckb_xuattoanbo_var.get() == 0:
+            sql_query = f'''
+            SELECT MaHang, TenHang, XuatXu, GiaNhap, GiaBan, KhuVuc, SUM(SoLuong{nameTableData.get()}) AS TongSoLuong{nameTableData.get()}
+            FROM Bang_{nameTableData.get()}_Kho
+            WHERE ThoiGian{nameTableData.get()} BETWEEN '{time_start_nam.get()}-{time_start_thang.get()}-{time_start_ngay.get()} {time_start_gio.get()}:{time_start_phut.get()}' AND '{time_end_nam.get()}-{time_end_thang.get()}-{time_end_ngay.get()} {time_end_gio.get()}:{time_end_phut.get()}'
+            GROUP BY MaHang, TenHang, XuatXu, GiaNhap, GiaBan, KhuVuc;
+            '''
+        elif nameTableData.get() == "Thao_Tac" and ckb_xuattoanbo_var.get() == 0:
+            sql_query = f'''
+            SELECT _NAME AS TEN,_VALUE AS GiaTri, COUNT(_VALUE) AS TongThaoTac
+            FROM Bang_Thao_Tac
+            WHERE _TIMESTAMP BETWEEN '{time_start_nam.get()}-{time_start_thang.get()}-{time_start_ngay.get()} {time_start_gio.get()}:{time_start_phut.get()}' AND '{time_end_nam.get()}-{time_end_thang.get()}-{time_end_ngay.get()} {time_end_gio.get()}:{time_end_phut.get()}'
+            GROUP BY _NAME,_VALUE;
+            '''
+            print(sql_query)
+        elif ckb_xuattoanbo_var.get() == 1:
+            sql_query = f"SELECT * FROM {name_table}"
+            print(sql_query)
+
+        else:
+            print("Checkbutton không được chọn")
+        addWin.destroy()
+        ExportElxs(sql_query)
+        # file_path = filedialog.asksaveasfilename(defaultextension='.xlsx', filetypes=[("Excel files", "*.xlsx")])
+
     
     tk.Button(addWin, text='Thêm', command=save_data).place(x=50,y=80)
     
 
-def ExportElxs():
+
+def ExportElxs(sql_query):
     global conn
     global nameTableData
-    name_table = str(nameTableData.get())
-    if name_table == "Xuat":
-        name_table = "Bang_Xuat_Kho"
-    elif name_table == "Nhap":
-        name_table = "Bang_Nhap_Kho"
-    elif name_table == "Tong":
-        name_table = "Bang_Tong_Kho"
+    global addWin
     
-    print(name_table)
-    if(name_table == 'TongKho1'):
-        name_table = 'Tong'
-    luaChonThoiGianXuatEx()
-    kq = pd.read_sql(f'SELECT * FROM {name_table}',conn)
+    # kq = pd.read_sql(f'SELECT * FROM {name_table}',conn)
+    try:
+            # Thực hiện truy vấn SQL và tạo DataFrame từ kết quả
+        df = pd.read_sql(sql_query, conn)
+        # Tạo một từ điển ánh xạ giữa các tên cũ và tên mới
+        if nameTableData.get() == "Thao_Tac":
+            name_mapping = {
+                "Channel1.Device1.Tags.Tag1": " Vat A",
+                "Channel1.Device1.Tags.Tag2": " Vat B",
+                "Channel1.Device1.Tags.Tag3": " Vat C",
+                "Channel1.Device1.Tags.Tag4": " Vat D",
+                "Channel1.Device1.Tags.Tag5": "CB Reset A",
+                "Cannel1.Device1.Tags.Tag7": "CB Reset C"        ,
+                "Chahannel1.Device1.Tags.Tag6": "CB Reset B"        ,
+                "Chnnel1.Device1.Tags.Tag8": "CB Reset D"        ,
+                "Channel1.Device1.Tags.Tag9": "Vat A"        ,
+                "Channel1.Device1.Tags.Tag10": "Vat B"        ,
+                "Channel1.Device1.Tags.Tag11": "Vat C"        ,
+                "Channel1.Device1.Tags.Tag12": "Vat D"        ,
+                "Channel1.Device1.Tags.Tag13": "Start"        ,
+                "Channel1.Device1.Tags.Tag14": "CB Xilanh"        ,
+                "Channel1.Device1.Tags.Tag15": "CTHT DC1 N"        ,
 
-    df = pd.DataFrame(kq)
+
+                # Thêm các ánh xạ khác nếu cần thiết
+            }
+
+            # Thực hiện thay đổi tên cột
+            df.rename(columns={'TEN': 'Ten'}, inplace=True)
+
+            # Thay đổi tên của các cột dựa trên từ điển ánh xạ
+            df['Ten'] = df['Ten'].map(name_mapping).fillna(df['Ten'])
+
+        print(df)
+        dfr = pd.DataFrame(df)
+        
+    except Exception as e:
+        print("Có lỗi xảy ra khi thực hiện truy vấn SQL:", e)
     file_path = filedialog.asksaveasfilename(defaultextension='.xlsx', filetypes=[("Excel files", "*.xlsx")])
     # Nếu người dùng chọn một đường dẫn, thực hiện việc xuất Excel
     if file_path:
         print(f"file_path{file_path}")
-        df.to_excel(file_path,index=False)
+        dfr.to_excel(file_path,index=False)
+
 
 def on_btXuatExcel():
-    excel = threading.Thread(target=luaChonThoiGianXuatEx)
+    excel = threading.Thread(target=KiemTraXuatEx)
     excel.start()
 
 btXuatExcel = tk.Button(
@@ -587,26 +722,6 @@ delete_button.place(x=280,y=700)
 update_button = tk.Button(frame2, text='Sửa dữ liệu', command="")
 update_button.place(x=380,y=700)
 def truyenThongArd(data_frame):
-    # checkPath = tk.BooleanVar()
-    # print(f'truyenthong{data_frame}')
-    # if data_frame == '001':
-    #     Arduino_Serial.write('1'.encode())
-    # elif data_frame == '002':
-    #     Arduino_Serial.write('2'.encode())
-    # elif data_frame == '003':
-    #     Arduino_Serial.write('3'.encode())
-    # elif data_frame == '004':
-    #     Arduino_Serial.write('4'.encode())
-    # elif data_frame == '005':
-    #     Arduino_Serial.write('5'.encode())
-    # elif data_frame == '006':
-    #     Arduino_Serial.write('6'.encode())
-    # elif data_frame == '007':
-    #     Arduino_Serial.write('7'. encode())
-    # elif data_frame == '008':
-    #     Arduino_Serial.write('8'.encode())
-    # else:
-    #     myOutput = 'Khong trong kho'
  # Tạo từ điển ánh xạ giữa data_frame và chuỗi cần gửi
     data_mapping = {
         '001': '1',
